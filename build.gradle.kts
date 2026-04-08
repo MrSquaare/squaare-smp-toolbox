@@ -82,6 +82,11 @@ ktlint {
     }
 }
 
+detekt {
+    buildUponDefaultConfig = true
+    config = files("detekt.yml")
+}
+
 tasks.jar {
     inputs.property("projectName", project.name)
 
