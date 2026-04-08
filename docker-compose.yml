@@ -1,0 +1,20 @@
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    container_name: mc-server
+    restart: unless-stopped
+    environment:
+      EULA: "TRUE"
+      TYPE: "FABRIC"
+      VERSION: "1.20.1"
+      FABRIC_LOADER_VERSION: "0.18.6"
+      MODRINTH_PROJECTS: |
+        fabric-api:0.92.7+1.20.1
+        fabric-language-kotlin:1.13.10+kotlin.2.3.20
+      MEMORY: "2G"
+      REMOVE_OLD_MODS: "TRUE"
+    ports:
+      - "25565:25565"
+    volumes:
+      - ./build/libs:/mods
+      - ./.mc-server-data:/data
