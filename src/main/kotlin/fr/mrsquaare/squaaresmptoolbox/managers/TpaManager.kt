@@ -43,10 +43,6 @@ object TpaManager {
         requests.remove(targetUuid)
     }
 
-    fun clearRequests() {
-        requests.clear()
-    }
-
     private fun isExpired(request: TpaRequest): Boolean =
         System.currentTimeMillis() - request.createdAtMillis >
             REQUEST_TIMEOUT_MILLIS
