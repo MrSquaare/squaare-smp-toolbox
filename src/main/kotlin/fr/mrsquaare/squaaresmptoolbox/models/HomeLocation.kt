@@ -1,8 +1,10 @@
 package fr.mrsquaare.squaaresmptoolbox.models
 
-import fr.mrsquaare.squaaresmptoolbox.utils.NbtTagType
+import com.mojang.serialization.Codec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtOps
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -16,20 +18,31 @@ data class HomeLocation(
     val yaw: Float,
     val pitch: Float,
 ) {
-    fun toNbt(): CompoundTag {
-        val nbt = CompoundTag()
-
-        nbt.putString("dimension", dimension.location().toString())
-        nbt.putDouble("x", x)
-        nbt.putDouble("y", y)
-        nbt.putDouble("z", z)
-        nbt.putFloat("yaw", yaw)
-        nbt.putFloat("pitch", pitch)
-
-        return nbt
-    }
+    fun toNbt(): CompoundTag =
+        CODEC
+            .encodeStart(NbtOps.INSTANCE, this)
+            .result()
+            .orElseThrow() as CompoundTag
 
     companion object {
+        private val CODEC: Codec<HomeLocation> =
+            RecordCodecBuilder.create { instance ->
+                instance
+                    .group(
+                        ResourceLocation.CODEC
+                            .xmap(
+                                { ResourceKey.create(Registries.DIMENSION, it) },
+                                { it.location() },
+                            ).fieldOf("dimension")
+                            .forGetter(HomeLocation::dimension),
+                        Codec.DOUBLE.fieldOf("x").forGetter(HomeLocation::x),
+                        Codec.DOUBLE.fieldOf("y").forGetter(HomeLocation::y),
+                        Codec.DOUBLE.fieldOf("z").forGetter(HomeLocation::z),
+                        Codec.FLOAT.fieldOf("yaw").forGetter(HomeLocation::yaw),
+                        Codec.FLOAT.fieldOf("pitch").forGetter(HomeLocation::pitch),
+                    ).apply(instance, ::HomeLocation)
+            }
+
         fun fromPlayer(player: ServerPlayer): HomeLocation =
             HomeLocation(
                 dimension = player.level().dimension(),
@@ -40,30 +53,10 @@ data class HomeLocation(
                 pitch = player.xRot,
             )
 
-        fun fromNbt(nbt: CompoundTag): HomeLocation? {
-            if (!isValidNbt(nbt)) {
-                return null
-            }
-
-            val dimensionLocation =
-                ResourceLocation.tryParse(nbt.getString("dimension")) ?: return null
-
-            return HomeLocation(
-                dimension = ResourceKey.create(Registries.DIMENSION, dimensionLocation),
-                x = nbt.getDouble("x"),
-                y = nbt.getDouble("y"),
-                z = nbt.getDouble("z"),
-                yaw = nbt.getFloat("yaw"),
-                pitch = nbt.getFloat("pitch"),
-            )
-        }
-
-        private fun isValidNbt(nbt: CompoundTag): Boolean =
-            nbt.contains("dimension", NbtTagType.STRING) &&
-                nbt.contains("x", NbtTagType.DOUBLE) &&
-                nbt.contains("y", NbtTagType.DOUBLE) &&
-                nbt.contains("z", NbtTagType.DOUBLE) &&
-                nbt.contains("yaw", NbtTagType.FLOAT) &&
-                nbt.contains("pitch", NbtTagType.FLOAT)
+        fun fromNbt(nbt: CompoundTag): HomeLocation? =
+            CODEC
+                .parse(NbtOps.INSTANCE, nbt)
+                .result()
+                .orElse(null)
     }
 }
