@@ -1,5 +1,6 @@
 package fr.mrsquaare.squaaresmptoolbox.models
 
+import fr.mrsquaare.squaaresmptoolbox.utils.NbtTagType
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceKey
@@ -40,6 +41,10 @@ data class HomeLocation(
             )
 
         fun fromNbt(nbt: CompoundTag): HomeLocation? {
+            if (!isValidNbt(nbt)) {
+                return null
+            }
+
             val dimensionLocation =
                 ResourceLocation.tryParse(nbt.getString("dimension")) ?: return null
 
@@ -52,5 +57,13 @@ data class HomeLocation(
                 pitch = nbt.getFloat("pitch"),
             )
         }
+
+        private fun isValidNbt(nbt: CompoundTag): Boolean =
+            nbt.contains("dimension", NbtTagType.STRING) &&
+                nbt.contains("x", NbtTagType.DOUBLE) &&
+                nbt.contains("y", NbtTagType.DOUBLE) &&
+                nbt.contains("z", NbtTagType.DOUBLE) &&
+                nbt.contains("yaw", NbtTagType.FLOAT) &&
+                nbt.contains("pitch", NbtTagType.FLOAT)
     }
 }
