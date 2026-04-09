@@ -1,10 +1,8 @@
 package fr.mrsquaare.squaaresmptoolbox.storage
 
 import fr.mrsquaare.squaaresmptoolbox.models.HomeLocation
-import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.MinecraftServer
 import net.minecraft.world.level.saveddata.SavedData
 import java.util.UUID
 
@@ -26,52 +24,38 @@ class HomeSavedData : SavedData() {
         val homesTag = CompoundTag()
 
         homes.forEach { (uuid, home) ->
-            val homeTag = CompoundTag()
-
-            homeTag.putString("dimension", home.dimension.location().toString())
-            homeTag.putDouble("x", home.x)
-            homeTag.putDouble("y", home.y)
-            homeTag.putDouble("z", home.z)
-            homeTag.putFloat("yaw", home.yaw)
-            homeTag.putFloat("pitch", home.pitch)
-            homesTag.put(uuid.toString(), homeTag)
+            homesTag.put(uuid.toString(), home.toNbt())
         }
 
-        nbt.put("homes", homesTag)
+        nbt.put(HOME_TAG_KEY, homesTag)
 
         return nbt
     }
 
     companion object {
-        @JvmStatic
-        fun createNew(): HomeSavedData = HomeSavedData()
+        private const val HOME_DATA_ID = "squaare-smp-toolbox_home_data"
+        private const val HOME_TAG_KEY = "homes"
 
-        @JvmStatic
         fun load(nbt: CompoundTag): HomeSavedData {
             val state = HomeSavedData()
-            val homesTag = nbt.getCompound("homes")
+            val homesTag = nbt.getCompound(HOME_TAG_KEY)
 
             for (key in homesTag.allKeys) {
+                val uuid = runCatching { UUID.fromString(key) }.getOrNull() ?: continue
                 val homeTag = homesTag.getCompound(key)
-                val dimensionLocation =
-                    ResourceLocation.tryParse(homeTag.getString("dimension"))
+                val homeLocation = HomeLocation.fromNbt(homeTag) ?: continue
 
-                if (dimensionLocation != null) {
-                    val home =
-                        HomeLocation(
-                            dimension = ResourceKey.create(Registries.DIMENSION, dimensionLocation),
-                            x = homeTag.getDouble("x"),
-                            y = homeTag.getDouble("y"),
-                            z = homeTag.getDouble("z"),
-                            yaw = homeTag.getFloat("yaw"),
-                            pitch = homeTag.getFloat("pitch"),
-                        )
-
-                    state.homes[UUID.fromString(key)] = home
-                }
+                state.homes[uuid] = homeLocation
             }
 
             return state
         }
+
+        fun get(server: MinecraftServer): HomeSavedData =
+            server.overworld().dataStorage.computeIfAbsent(
+                ::load,
+                ::HomeSavedData,
+                HOME_DATA_ID,
+            )
     }
 }
