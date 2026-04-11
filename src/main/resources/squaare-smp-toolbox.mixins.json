@@ -1,9 +1,9 @@
 {
 	"required": true,
-	"package": "fr.mrsquaare.squaaresmptoolbox.mixin",
+	"package": "fr.mrsquaare.squaaresmptoolbox.mixins",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ExampleMixin"
+		"ExplosionMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -2,6 +2,7 @@ package fr.mrsquaare.squaaresmptoolbox
 
 import fr.mrsquaare.squaaresmptoolbox.commands.HomeCommand
 import fr.mrsquaare.squaaresmptoolbox.commands.TpaCommand
+import fr.mrsquaare.squaaresmptoolbox.listeners.PreventContainerDestroyListener
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import org.slf4j.LoggerFactory
@@ -16,6 +17,8 @@ object SquaareSMPToolbox : ModInitializer {
             HomeCommand.register(dispatcher)
             TpaCommand.register(dispatcher)
         }
+
+        PreventContainerDestroyListener.register()
 
         logger.info("Squaare SMP Toolbox initialized")
     }

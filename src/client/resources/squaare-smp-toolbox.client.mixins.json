@@ -1,10 +1,8 @@
 {
 	"required": true,
-	"package": "fr.mrsquaare.squaaresmptoolbox.client.mixin",
+	"package": "fr.mrsquaare.squaaresmptoolbox.client.mixins",
 	"compatibilityLevel": "JAVA_17",
-	"client": [
-		"ExampleClientMixin"
-	],
+	"client": [],
 	"injectors": {
 		"defaultRequire": 1
 	},
