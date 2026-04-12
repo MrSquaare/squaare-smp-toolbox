@@ -4,7 +4,7 @@ plugins {
     id("net.fabricmc.fabric-loom-remap")
     `maven-publish`
     id("org.jetbrains.kotlin.jvm") version "2.3.20"
-    id("org.jlleitschuh.gradle.ktlint")
+    id("com.diffplug.spotless") version "8.4.0"
     id("io.gitlab.arturbosch.detekt")
 }
 
@@ -75,16 +75,26 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-ktlint {
-    filter {
-        include("**/*.kt", "**/*.kts", "**/*.gradle.kts")
-        exclude("**/build/**")
+spotless {
+    kotlin {
+        target("src/**/*.kt", "src/**/*.kts", "*.gradle.kts")
+        ktlint()
+    }
+
+    java {
+        target("src/**/*.java")
+        googleJavaFormat()
     }
 }
 
 detekt {
     buildUponDefaultConfig = true
     config = files("detekt.yml")
+}
+
+tasks.check {
+    dependsOn("spotlessCheck", "detekt")
+    description = "Run all code quality checks (spotless, detekt)"
 }
 
 tasks.jar {

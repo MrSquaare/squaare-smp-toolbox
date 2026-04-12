@@ -11,19 +11,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: gradle/actions/wrapper-validation@v6
-
       - name: Setup Java
         uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "zulu"
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x ./gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: Run KtLint
-        run: ./gradlew ktlintCheck
+      - name: Run Spotless
+        run: ./gradlew spotlessCheck
 
       - name: Run Detekt
         run: ./gradlew detekt
