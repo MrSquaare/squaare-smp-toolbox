@@ -3,7 +3,10 @@
 	"package": "fr.mrsquaare.squaaresmptoolbox.mixins",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ExplosionMixin"
+		"CommandsMixin",
+		"ExplosionMixin",
+		"LevelMixin",
+		"ServerPlayerGameModeMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
