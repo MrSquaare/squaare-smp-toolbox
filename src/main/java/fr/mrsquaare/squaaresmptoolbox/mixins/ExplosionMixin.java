@@ -13,19 +13,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Explosion.class)
 public abstract class ExplosionMixin {
-    @Shadow
-    private Level level;
+  @Shadow private Level level;
 
-    @Shadow
-    private ObjectArrayList<BlockPos> toBlow;
+  @Shadow private ObjectArrayList<BlockPos> toBlow;
 
-    @Inject(method = "finalizeExplosion(Z)V", at = @At("HEAD"))
-    private void onFinalizeExplosion(boolean spawnParticles, CallbackInfo ci) {
-        Explosion explosion = (Explosion) (Object) this;
+  @Inject(method = "finalizeExplosion(Z)V", at = @At("HEAD"))
+  private void onFinalizeExplosion(boolean spawnParticles, CallbackInfo ci) {
+    Explosion explosion = (Explosion) (Object) this;
 
-        toBlow.removeIf(pos -> !ExplosionDestroyBlockCallback.Companion
-            .getEVENT()
-            .invoker()
-            .allowDestroyBlock(explosion, level, pos));
-    }
+    toBlow.removeIf(
+        pos ->
+            !ExplosionDestroyBlockCallback.Companion.getEVENT()
+                .invoker()
+                .allowDestroyBlock(explosion, level, pos));
+  }
 }
