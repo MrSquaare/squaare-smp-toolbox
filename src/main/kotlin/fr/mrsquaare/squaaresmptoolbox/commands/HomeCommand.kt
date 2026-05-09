@@ -1,6 +1,7 @@
 package fr.mrsquaare.squaaresmptoolbox.commands
 
 import com.mojang.brigadier.CommandDispatcher
+import fr.mrsquaare.squaaresmptoolbox.managers.ConfigManager
 import fr.mrsquaare.squaaresmptoolbox.managers.HomeManager
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -11,6 +12,7 @@ object HomeCommand {
         dispatcher.register(
             Commands
                 .literal("home")
+                .requires { ConfigManager.config.home.enabled }
                 .executes { context ->
                     teleportHome(context.source)
                 }.then(

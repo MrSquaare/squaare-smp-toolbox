@@ -2,6 +2,7 @@ package fr.mrsquaare.squaaresmptoolbox.commands
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
+import fr.mrsquaare.squaaresmptoolbox.managers.ConfigManager
 import fr.mrsquaare.squaaresmptoolbox.managers.TpaManager
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -13,6 +14,7 @@ object TpaCommand {
         dispatcher.register(
             Commands
                 .literal("tpa")
+                .requires { ConfigManager.config.tpa.enabled }
                 .then(
                     Commands
                         .argument("user", EntityArgument.player())
