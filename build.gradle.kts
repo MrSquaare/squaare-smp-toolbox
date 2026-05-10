@@ -4,6 +4,7 @@ plugins {
     id("net.fabricmc.fabric-loom-remap")
     `maven-publish`
     id("org.jetbrains.kotlin.jvm") version "2.3.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.3.20"
     id("com.diffplug.spotless") version "8.4.0"
     id("io.gitlab.arturbosch.detekt")
 }
@@ -45,6 +46,8 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:${providers.gradleProperty("fabric_api_version").get()}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${providers.gradleProperty("fabric_kotlin_version").get()}")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 }
 
 tasks.processResources {

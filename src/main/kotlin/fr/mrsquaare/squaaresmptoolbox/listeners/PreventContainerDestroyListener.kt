@@ -1,15 +1,18 @@
 package fr.mrsquaare.squaaresmptoolbox.listeners
 
 import fr.mrsquaare.squaaresmptoolbox.events.CommandPerformCallback
+import fr.mrsquaare.squaaresmptoolbox.events.ExplosionCallback
 import fr.mrsquaare.squaaresmptoolbox.events.ExplosionDestroyBlockCallback
 import fr.mrsquaare.squaaresmptoolbox.events.LevelSetBlockCallback
 import fr.mrsquaare.squaaresmptoolbox.events.PlayerDestroyBlockCallback
+import fr.mrsquaare.squaaresmptoolbox.managers.ConfigManager
 import fr.mrsquaare.squaaresmptoolbox.utils.BlockUtils
 import java.util.ArrayDeque
 
 object PreventContainerDestroyListener {
     private enum class TrackedOrigin {
         COMMAND,
+        EXPLOSION,
         PLAYER_BREAK,
     }
 
@@ -39,6 +42,12 @@ object PreventContainerDestroyListener {
 
     fun register() {
         ExplosionDestroyBlockCallback.EVENT.register { _, level, pos ->
+            val config = ConfigManager.config.containerProtection
+
+            if (!config.enabled || !config.fromExplosion) {
+                return@register true
+            }
+
             !BlockUtils.isContainer(level, pos)
         }
 
@@ -47,6 +56,14 @@ object PreventContainerDestroyListener {
         }
 
         CommandPerformCallback.AFTER.register { _, _ ->
+            TrackedScope.pop()
+        }
+
+        ExplosionCallback.BEFORE.register { _ ->
+            TrackedScope.push(TrackedOrigin.EXPLOSION)
+        }
+
+        ExplosionCallback.AFTER.register { _ ->
             TrackedScope.pop()
         }
 
@@ -59,6 +76,12 @@ object PreventContainerDestroyListener {
         }
 
         LevelSetBlockCallback.EVENT.register { level, pos, newState ->
+            val config = ConfigManager.config.containerProtection
+
+            if (!config.enabled || !config.fromEntity) {
+                return@register true
+            }
+
             level.isClientSide || !newState.isAir || !BlockUtils.isContainer(level, pos) ||
                 TrackedScope.isTrusted()
         }
