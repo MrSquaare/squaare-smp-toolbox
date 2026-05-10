@@ -51,7 +51,9 @@ object ConfigManager {
             val content = json.encodeToString(config)
 
             configFile.writeText(content)
-        } catch (e: IOException) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             SquaareSMPToolbox.logger.error("Failed to save configuration file.", e)
         }
     }
