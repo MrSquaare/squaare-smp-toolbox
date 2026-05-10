@@ -1,6 +1,7 @@
 package fr.mrsquaare.squaaresmptoolbox.listeners
 
 import fr.mrsquaare.squaaresmptoolbox.events.CommandPerformCallback
+import fr.mrsquaare.squaaresmptoolbox.events.ExplosionCallback
 import fr.mrsquaare.squaaresmptoolbox.events.ExplosionDestroyBlockCallback
 import fr.mrsquaare.squaaresmptoolbox.events.LevelSetBlockCallback
 import fr.mrsquaare.squaaresmptoolbox.events.PlayerDestroyBlockCallback
@@ -11,6 +12,7 @@ import java.util.ArrayDeque
 object PreventContainerDestroyListener {
     private enum class TrackedOrigin {
         COMMAND,
+        EXPLOSION,
         PLAYER_BREAK,
     }
 
@@ -54,6 +56,14 @@ object PreventContainerDestroyListener {
         }
 
         CommandPerformCallback.AFTER.register { _, _ ->
+            TrackedScope.pop()
+        }
+
+        ExplosionCallback.BEFORE.register { _ ->
+            TrackedScope.push(TrackedOrigin.EXPLOSION)
+        }
+
+        ExplosionCallback.AFTER.register { _ ->
             TrackedScope.pop()
         }
 
